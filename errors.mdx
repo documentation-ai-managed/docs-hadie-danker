@@ -1,0 +1,198 @@
+---
+title: Error Handling and Troubleshooting
+description: Understand common errors in Hadie Danker integrations with WhatsApp Business API and how to resolve them effectively.
+---
+
+## Overview
+
+Hadie Danker provides robust error handling for WhatsApp Business API integrations. You encounter HTTP status codes, API-specific errors, connection issues, rate limits, and delivery problems. This guide helps you interpret errors, apply fixes, and implement best practices for reliable messaging.
+
+<Callout kind="alert">
+  Always check the `error.code` and `error.message` fields in responses for precise diagnosis.
+</Callout>
+
+## HTTP Status Codes and API Errors
+
+Hadie Danker uses standard HTTP status codes alongside WhatsApp-specific error details.
+
+| Status Code | Meaning | Common Cause | Action |
+|-------------|---------|--------------|--------|
+| `200` | Success | Valid request | Proceed |
+| `400` | Bad Request | Invalid parameters | Validate `phone_number_id` and message structure |
+| `401` | Unauthorized | Missing or invalid `{API_KEY}` | Verify credentials |
+| `429` | Rate Limited | Exceeded tier limits | Implement backoff retry |
+| `500` | Server Error | Temporary issue | Retry after delay |
+
+Here's an example error response:
+
+<Response tabs="400,401,429">
+```json
+{
+  "error": {
+    "code": 131009,
+    "title": "Invalid parameter",
+    "details": "Message field required",
+    "href": "https://developers.facebook.com/docs/whatsapp/cloud-api/reference/errors#131009"
+  }
+}
+```
+
+```json
+{
+  "error": {
+    "code": 401,
+    "title": "Invalid API key",
+    "message": "Access denied"
+  }
+}
+```
+
+```json
+{
+  "error": {
+    "code": 429,
+    "title": "Rate limit exceeded",
+    "retry_after": 60
+  }
+}
+```
+</Response>
+
+<ResponseField name="error.code" field-type="number" required="true">
+  WhatsApp-specific error code.
+</ResponseField>
+
+<ResponseField name="error.message" field-type="string">
+  Human-readable description.
+</ResponseField>
+
+## Troubleshooting Connection Failures
+
+Connection issues often stem from network problems, invalid credentials, or webhook misconfigurations.
+
+<Steps>
+  <Step title="Verify Credentials" icon="key">
+    Ensure your `{API_KEY}` and `phone_number_id` match dashboard settings at `https://dashboard.example.com`.
+  </Step>
+  <Step title="Test Endpoint" icon="zap">
+    Send a simple GET to `https://api.example.com/v1/health`.
+  </Step>
+  <Step title="Check Webhooks" icon="settings">
+    Confirm webhook URL `https://your-webhook-url.com/webhook` receives `POST` requests.
+  </Step>
+  <Step title="Inspect Logs" icon="file-text">
+    Review server logs for TLS/SSL errors.
+  </Step>
+</Steps>
+
+## Handling Rate Limits and Throttling
+
+WhatsApp enforces tiered rate limits based on your phone number quality rating. Exceeding limits returns `429` with `retry_after`.
+
+<Columns cols={2}>
+  <Card title="Tier 0" icon="alert-triangle" horizontal>
+    80 messages/24h<br/>New numbers
+  </Card>
+  <Card title="Tier 1" icon="check-circle" horizontal>
+    1000 messages/24h<br/>Verified business
+  </Card>
+</Columns>
+
+Implement exponential backoff:
+
+<CodeGroup tabs="JavaScript,Python">
+```javascript
+async function sendMessageWithRetry(message, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await fetch(`https://api.example.com/v1/messages`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${YOUR_API_KEY}` },
+        body: JSON.stringify(message)
+      });
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('retry-after') || Math.pow(2, i) * 1000;
+        await new Promise(resolve => setTimeout(resolve, retryAfter));
+        continue;
+      }
+      return response.json();
+    } catch (error) {
+      console.error('Retry', i, error);
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
+```
+
+```python
+import requests
+import time
+
+def send_message_with_retry(message, max_retries=3):
+    for i in range(max_retries):
+        try:
+            response = requests.post(
+                'https://api.example.com/v1/messages',
+                headers={'Authorization': f'Bearer {YOUR_API_KEY}'},
+                json=message
+            )
+            if response.status_code == 429:
+                retry_after = int(response.headers.get('retry-after', 2**i * 1000)) / 1000
+                time.sleep(retry_after)
+                continue
+            return response.json()
+        except Exception as e:
+            print(f'Retry {i}: {e}')
+    raise Exception('Max retries exceeded')
+```
+</CodeGroup>
+
+## Debugging Message Delivery Issues
+
+Use WhatsApp's message status webhooks to track delivery.
+
+<Tabs>
+  <Tab title="Sent" icon="send">
+    Message queued successfully. Check `status: "sent"`.
+  </Tab>
+  <Tab title="Delivered" icon="check-circle">
+    `status: "delivered"`. Recipient device received it.
+  </Tab>
+  <Tab title="Read" icon="eye">
+    `status: "read"`. User opened the chat.
+  </Tab>
+  <Tab title="Failed" icon="x-circle">
+    Inspect `errors` array for codes like `135` (recipient blocked).
+  </Tab>
+</Tabs>
+
+<Expandable title="Advanced: Parse Webhook Payload" default-open="false">
+```javascript
+app.post('/webhook', (req, res) => {
+  const entry = req.body.entry[0];
+  const change = entry.changes[0];
+  const statuses = change.value.messaging_product === 'whatsapp' 
+    ? change.value.statuses : [];
+  
+  statuses.forEach(status => {
+    console.log(`ID: ${status.id}, Status: ${status.status}, Recipient: ${status.recipient_id}`);
+    if (status.errors) {
+      status.errors.forEach(error => console.error('Error:', error.code, error.title));
+    }
+  });
+  res.sendStatus(200);
+});
+```
+</Expandable>
+
+## Logging and Monitoring Best Practices
+
+Capture full request/response cycles and integrate with tools like Sentry or Datadog.
+
+- Log `{API_KEY}` usage (never the key itself)
+- Monitor `retry_after` headers
+- Set alerts for `>5%` failure rate
+
+<Callout kind="tip">
+  Enable verbose logging in Hadie Danker dashboard for detailed traces.
+</Callout>

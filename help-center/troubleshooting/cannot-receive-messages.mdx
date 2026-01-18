@@ -1,0 +1,29 @@
+---
+title: Cannot Receive WhatsApp Messages
+description: Quick fix for message delivery issues in Hadie Danker WhatsApp API.
+---
+
+## Symptoms
+
+- No inbound messages
+- API shows delivery status "pending"
+
+## Possible Causes
+
+- Webhook not configured
+- Phone number not verified
+
+## Quick Fix
+
+<Steps>
+  <Step title="Check webhook status">
+    ````bash
+    curl -X GET \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      https://api.hadiedanker.com/v1/webhook/status
+    ````
+  </Step>
+  <Step title="Verify phone number">
+    Ensure your number is verified in WhatsApp Business Manager.
+  </Step>
+</Steps>

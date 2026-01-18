@@ -1,0 +1,105 @@
+---
+title: Introduction to Hadie Danker
+description: Discover Hadie Danker, the official connector for WhatsApp Business API, enabling seamless messaging integrations for businesses.
+---
+
+## Overview
+
+Hadie Danker provides the official connector to the WhatsApp Business API. You integrate it into your applications to send and receive messages at scale. Businesses use it for customer support, notifications, and marketing campaigns through WhatsApp's secure platform.
+
+This connector handles authentication, message templates, webhooks, and media attachments. You get reliable delivery reports and conversation analytics without managing infrastructure.
+
+## Key Features
+
+<Columns cols={3}>
+  <Card title="Send Messages" icon="message-circle" href="#send-messages">
+    Dispatch text, images, documents, and interactive messages using simple API calls.
+  </Card>
+  <Card title="Receive Messages" icon="inbox" href="#receive-messages">
+    Set up webhooks to capture incoming messages and user interactions in real-time.
+  </Card>
+  <Card title="Templates" icon="file-text" href="#templates">
+    Use pre-approved message templates for notifications and promotions.
+  </Card>
+</Columns>
+
+## Benefits for Business Communication
+
+You streamline customer interactions with WhatsApp's 2 billion+ users. Hadie Danker reduces setup time from weeks to hours. It supports high-volume messaging with 99.9% uptime and automatic retries.
+
+Track metrics like delivery rates and response times. Comply with WhatsApp policies through built-in validation. Scale from small teams to enterprises without performance issues.
+
+<Callout kind="tip">
+  Start with a free developer account at `https://dashboard.example.com` to test features.
+</Callout>
+
+## Supported Platforms and Requirements
+
+Hadie Danker works across languages and environments.
+
+<Tabs>
+  <Tab title="Node.js" icon="nodejs">
+    Requires Node `{>=18}` and npm `{>=9}`.
+  </Tab>
+  <Tab title="Python" icon="python">
+    Python `{3.9+}` with pip.
+  </Tab>
+  <Tab title="cURL" icon="terminal">
+    Any system with cURL `{>=7.68}`.
+  </Tab>
+</Tabs>
+
+You need a WhatsApp Business Account and phone number verified via `https://dashboard.example.com`.
+
+## Quick Start
+
+Get started in minutes.
+
+<Steps>
+  <Step title="Install SDK" icon="download">
+    <CodeGroup tabs="Node.js,Python">
+```javascript
+npm install hadie-danker
+```
+````python
+pip install hadie-danker
+````
+    </CodeGroup>
+  </Step>
+  <Step title="Set API Key" icon="key">
+    Get your key from `https://dashboard.example.com/api-keys`.
+  </Step>
+  <Step title="Send First Message" icon="send">
+    ```javascript
+import { HadieDanker } from 'hadie-danker';
+
+const client = new HadieDanker({ apiKey: `YOUR_API_KEY` });
+await client.messages.send({
+  to: `whatsapp:+1234567890`,
+  type: `text`,
+  text: { body: `Hello from Hadie Danker!` }
+});
+    ```
+  </Step>
+</Steps>
+
+## Next Steps
+
+<Columns cols={2}>
+  <Card title="Quickstart Guide" icon="book-open" href="/quickstart">
+    Build your first integration.
+  </Card>
+  <Card title="Authentication" icon="lock" href="/authentication">
+    Secure your API access.
+  </Card>
+  <Card title="API Reference" icon="code" href="/guides">
+    Full endpoint details.
+  </Card>
+  <Card title="Changelog" icon="git-branch" href="/changelog">
+    Latest updates.
+  </Card>
+</Columns>
+
+<Callout kind="info">
+  Join our community forum at `https://docs.example.com/help-center` for support.
+</Callout>

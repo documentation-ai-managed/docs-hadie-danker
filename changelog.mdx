@@ -1,0 +1,169 @@
+---
+title: Changelog
+description: Track the latest updates, features, and bug fixes in Hadie Danker to stay current with WhatsApp Business API integrations.
+---
+
+## Recent Releases
+
+Stay informed about Hadie Danker's evolution. You receive automatic notifications for major releases via your dashboard at `https://dashboard.example.com`. Check this page regularly for detailed changelogs.
+
+<Callout kind="info">
+  Subscribe to our RSS feed or join the Discord community for real-time update alerts.
+</Callout>
+
+<Update label="2024-10-15" description="v1.3.0" tags={["feature", "improvement"]}>
+
+## New Features
+
+- Added support for WhatsApp interactive buttons and lists in message templates.
+- Introduced webhook retry mechanism with exponential backoff for reliable delivery.
+
+## Improvements
+
+- Enhanced rate limiting to match WhatsApp Business API quotas dynamically.
+- Optimized message queuing for `<100ms` average latency.
+
+## Bug Fixes
+
+- Fixed occasional duplicate message sends during high-volume campaigns.
+- Resolved authentication token refresh issues in long-running sessions.
+
+</Update>
+
+<Update label="2024-09-20" description="v1.2.0" tags={["feature", "bugfix"]}>
+
+## New Features
+
+- Native integration with contact segmentation for targeted messaging.
+- Support for media messages including images, documents, and voice notes.
+
+## Bug Fixes
+
+- Patched vulnerability in webhook signature validation (CVE-2024-XXXX).
+- Corrected error handling for invalid phone number formats.
+
+## Deprecations
+
+- Legacy `sendText` method deprecated; migrate to unified `sendMessage`.
+
+</Update>
+
+<Update label="2024-08-10" description="v1.1.0" tags={["breaking", "feature"]}>
+
+## Breaking Changes
+
+- Updated default API version to WhatsApp Cloud API v19.0. Update your integrations accordingly.
+
+## New Features
+
+- Added real-time message status tracking (sent, delivered, read).
+- Multi-phone number support for business accounts.
+
+## Migration Guide
+
+Follow these steps to upgrade seamlessly.
+
+<Steps>
+  <Step title="Update Package" icon="package">
+    
+````bash
+npm install hadie-danker@latest
+````
+
+  </Step>
+  <Step title="Update Code" icon="code">
+    Replace deprecated methods:
+    
+<CodeGroup tabs="JavaScript,Python">
+```javascript
+// Old
+await client.sendText(phone, message);
+
+// New
+await client.sendMessage(phone, { text: message });
+```
+```python
+# Old
+await client.send_text(phone, message)
+
+# New
+await client.send_message(phone, {"text": message})
+```
+</CodeGroup>
+
+  </Step>
+  <Step title="Test Webhooks" icon="zap">
+    Verify signatures with the new `webhook.verifySignature(header, payload, secret)` method.
+  </Step>
+</Steps>
+
+</Update>
+
+## Upgrading to Latest Version
+
+Upgrade Hadie Danker effortlessly with these platform-specific instructions.
+
+<Tabs>
+  <Tab title="npm" icon="package">
+    
+````bash
+npm uninstall hadie-danker
+npm install hadie-danker@latest
+````
+
+    Restart your application and check `https://dashboard.example.com` for migration notes.
+  </Tab>
+  <Tab title="Docker" icon="docker">
+    
+````dockerfile
+FROM hadie-danker:latest
+````
+
+````bash
+docker pull hadie-danker:latest
+docker-compose up -d
+````
+  </Tab>
+</Tabs>
+
+<Callout kind="tip">
+  Always back up your configuration before upgrading. Use `hd backup` CLI command for exports.
+</Callout>
+
+## Future Plans
+
+<Columns cols={3}>
+  <Card title="v1.4.0" icon="rocket" href="#">
+    AI-powered message personalization and analytics dashboard.
+  </Card>
+  <Card title="v2.0.0" icon="zap" href="#">
+    Full WhatsApp Flows support and multi-language templates.
+  </Card>
+  <Card title="Roadmap" icon="map" href="https://github.com/org/repo/issues" target="_blank">
+    Vote on features and track progress.
+  </Card>
+</Columns>
+
+<Expandable title="Detailed Migration for Breaking Changes" default-open="false">
+
+For v1.1.0 breaking changes, update your API calls:
+
+<ParamField path="phone" param-type="string" required="true">
+  WhatsApp phone number in E.164 format (e.g., `15551234567`).
+</ParamField>
+
+<ResponseField name="status" field-type="string">
+  Message status: `sent`, `delivered`, `read`, `failed`.
+</ResponseField>
+
+Example migration:
+
+````javascript
+// Before v1.1.0
+const status = await client.getStatus(messageId);
+
+// After
+const status = await client.trackMessageStatus(messageId);
+````
+
+</Expandable>

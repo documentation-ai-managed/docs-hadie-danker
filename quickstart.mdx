@@ -1,0 +1,209 @@
+---
+title: Quickstart Guide
+description: Get started with Hadie Danker in under 5 minutes by setting up your first WhatsApp Business API connection and sending a test message.
+---
+
+## Prerequisites
+
+Before starting, ensure you have the following:
+
+<Callout kind="info">
+
+- A WhatsApp Business Account registered at [Meta for Developers](https://developers.facebook.com/)
+- Node.js `{>=18}` or Python `{>=3.10}` installed
+- An API key from your Hadie Danker dashboard at `https://dashboard.example.com`
+- A test phone number in E.164 format (e.g., `+1234567890`)
+
+</Callout>
+
+## Complete Setup in 5 Steps
+
+Follow these steps to connect and send your first message.
+
+<Steps>
+  <Step title="Register for Access" icon="user-plus">
+
+    Sign up for WhatsApp Business API access through Hadie Danker.
+
+    1. Visit `https://dashboard.example.com/register`
+    2. Create an account and verify your business
+    3. Generate your `{API_KEY}` and note your `{PHONE_ID}` (permanent WhatsApp number ID)
+
+    <Callout kind="tip">
+      Save your `{API_KEY}` securely. Never commit it to version control.
+    </Callout>
+
+  </Step>
+
+  <Step title="Install the SDK" icon="download">
+
+    Install the Hadie Danker SDK for your preferred language.
+
+    <CodeGroup tabs="Node.js,Python">
+
+    ````javascript
+    npm install hadie-danker
+    ````
+
+    ````bash
+    pip install hadie-danker
+    ````
+
+    </CodeGroup>
+
+  </Step>
+
+  <Step title="Configure Connection" icon="settings">
+
+    Set up your configuration with the required parameters.
+
+    Create a config file or use environment variables.
+
+    <Tabs>
+      <Tab title="Node.js" icon="nodejs">
+
+    ````javascript
+    // config.js
+    const config = {
+      apiKey: process.env.HADIE_API_KEY,  // YOUR_API_KEY
+      phoneId: process.env.PHONE_ID,      // Your WhatsApp phone ID
+      baseUrl: 'https://api.example.com/v1'
+    };
+
+    module.exports = config;
+    ````
+
+      </Tab>
+      <Tab title="Python" icon="python">
+
+    ````python
+    # config.py
+    import os
+
+    config = {
+        'api_key': os.getenv('HADIE_API_KEY'),  # YOUR_API_KEY
+        'phone_id': os.getenv('PHONE_ID'),      # Your WhatsApp phone ID
+        'base_url': 'https://api.example.com/v1'
+    }
+    ````
+
+      </Tab>
+    </Tabs>
+
+    Key parameters:
+
+    <ParamField path="apiKey" param-type="string" required="true">
+      Your secret API authentication key.
+    </ParamField>
+
+    <ParamField path="phoneId" param-type="string" required="true">
+      WhatsApp Business phone number ID from dashboard.
+    </ParamField>
+
+  </Step>
+
+  <Step title="Send First Message" icon="message-circle">
+
+    Use the SDK to send a test message to your phone.
+
+    <CodeGroup tabs="Node.js,Python">
+
+    ````javascript
+    // send-message.js
+    const Hadie = require('hadie-danker');
+    const config = require('./config');
+
+    const client = new Hadie(config);
+
+    async function sendTestMessage() {
+      const result = await client.messages.send({
+        to: '+1234567890',  // Your test number
+        type: 'text',
+        text: { body: 'Hello from Hadie Danker! 🚀' }
+      });
+      console.log('Message sent:', result);
+    }
+
+    sendTestMessage();
+    ````
+
+    ````python
+    # send_message.py
+    from hadie_danker import HadieClient
+    from config import config
+
+    client = HadieClient(config)
+
+    result = client.messages.send({
+        'to': '+1234567890',  # Your test number
+        'type': 'text',
+        'text': {'body': 'Hello from Hadie Danker! 🚀'}
+    })
+    print('Message sent:', result)
+    ````
+
+    </CodeGroup>
+
+    Run the script:
+
+    ````bash
+    node send-message.js
+    ````
+
+    ````bash
+    python send_message.py
+    ````
+
+  </Step>
+
+  <Step title="Verify Success" icon="check-circle">
+
+    Check your phone for the test message. You should receive:
+
+    ```
+    Hello from Hadie Danker! 🚀
+    ```
+
+    Success response example:
+
+    <Response show-lines="false">
+    ````json
+    {
+      "success": true,
+      "message_id": "wamid.HBgLMzE5NDIyOTc5NjcxNjMS0VFNDIyOTc5NjcxNjI.VD",
+      "status": "sent"
+    }
+    ````
+
+    ````json
+    {
+      "success": false,
+      "error": "Invalid phone number"
+    }
+    ````
+    </Response>
+
+  </Step>
+</Steps>
+
+## Next Steps
+
+Explore more features to build your WhatsApp integration.
+
+<Columns cols={3}>
+  <Card title="Authentication" icon="lock" href="/authentication">
+    Advanced auth methods and webhooks.
+  </Card>
+
+  <Card title="Message Templates" icon="file-text" href="/concepts">
+    Approved templates for compliance.
+  </Card>
+
+  <Card title="Webhooks" icon="zap" href="/configuration">
+    Real-time message delivery notifications.
+  </Card>
+</Columns>
+
+<Callout kind="success">
+  Congratulations! You've sent your first message with Hadie Danker. Check the [dashboard](https://dashboard.example.com) for message logs and analytics.
+</Callout>

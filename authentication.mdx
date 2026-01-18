@@ -1,0 +1,162 @@
+---
+title: Authentication and Security
+description: Learn how to securely authenticate with the WhatsApp Business API using Hadie Danker, including API keys, tokens, and best practices.
+---
+
+## Overview
+
+Hadie Danker provides secure authentication for the WhatsApp Business API. You authenticate using Bearer tokens generated from your API key. This approach ensures encrypted communication and role-based access control. Follow these steps to generate tokens, implement authentication, and manage security.
+
+<Callout kind="info">
+Before starting, ensure you have a Hadie Danker account and an API key from the dashboard at `https://dashboard.example.com`.
+</Callout>
+
+## Authentication Methods
+
+Hadie Danker supports two primary methods: API keys for simple access and OAuth 2.0 for advanced integrations.
+
+<Tabs>
+  <Tab title="API Key" icon="key">
+    Use your API key directly in the `Authorization` header for quick setup.
+
+    <ParamField header="Authorization" param-type="string" required="true">
+      Bearer token format: `Bearer YOUR_TOKEN`.
+    </ParamField>
+  </Tab>
+  <Tab title="OAuth 2.0" icon="shield">
+    For user-specific access, implement OAuth flows with client credentials.
+
+    Generate tokens via `https://auth.example.com/oauth/token`.
+  </Tab>
+</Tabs>
+
+## Generating Access Tokens
+
+Follow these steps to create a long-lived access token.
+
+<Steps>
+  <Step title="Log in to Dashboard" icon="log-in">
+    Navigate to `https://dashboard.example.com/account/api-keys`.
+  </Step>
+  <Step title="Create API Key" icon="key">
+    Click "Generate New Key" and select permissions like `messages:write`.
+  </Step>
+  <Step title="Copy Token" icon="copy">
+    Save the token securely. It displays only once.
+  </Step>
+</Steps>
+
+## Implementing Authentication
+
+Add the `Authorization` header to your API requests. Use these examples to send a test message.
+
+<CodeGroup tabs="JavaScript,Python">
+  ```javascript
+  const response = await fetch('https://api.example.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_TOKEN',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      to: 'whatsapp:+1234567890',
+      type: 'text',
+      text: { body: 'Hello from Hadie Danker!' }
+    })
+  });
+  ```
+  ```python
+  import requests
+
+  headers = {
+      'Authorization': 'Bearer YOUR_TOKEN',
+      'Content-Type': 'application/json'
+  }
+  data = {
+      'to': 'whatsapp:+1234567890',
+      'type': 'text',
+      'text': {'body': 'Hello from Hadie Danker!'}
+  }
+  response = requests.post('https://api.example.com/v1/messages', json=data, headers=headers)
+  ```
+</CodeGroup>
+
+<Request tabs="cURL" show-lines="true">
+  ```bash
+  curl -X POST https://api.example.com/v1/messages \
+    -H "Authorization: Bearer YOUR_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "to": "whatsapp:+1234567890",
+      "type": "text",
+      "text": {"body": "Hello from Hadie Danker!"}
+    }'
+  ```
+</Request>
+
+<Response tabs="200">
+  ```json
+  {
+    "messages": [
+      {
+        "id": "wamid.HBgLMzE5NjU2NDIyMDIyMRUCABEYEkJBNkE1RkY4QUY4MEI4MDI",
+        "recipient_id": "1234567890"
+      }
+    ]
+  }
+  ```
+</Response>
+
+## Token Management
+
+Tokens expire after 24 hours. Implement refresh logic to maintain access.
+
+<Expandable title="Token Refresh Example" default-open="false">
+  Poll the refresh endpoint every 20 hours.
+
+  ```javascript
+  async function refreshToken() {
+    const response = await fetch('https://auth.example.com/refresh', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer REFRESH_TOKEN' }
+    });
+    const { access_token } = await response.json();
+    // Store new access_token
+  }
+  ```
+</Expandable>
+
+## Security Best Practices
+
+Protect your credentials and follow these guidelines.
+
+<Columns cols={2}>
+  <Card title="Rotate Keys Regularly" icon="refresh-cw" horizontal>
+    Change API keys every 90 days or after team changes.
+  </Card>
+  <Card title="Use Role-Based Access" icon="users">
+    Assign minimal permissions: `messages:read` for viewers only.
+  </Card>
+  <Card title="Environment Variables" icon="settings">
+    Store tokens as `HADIE_TOKEN` in `.env` files.
+  </Card>
+  <Card title="HTTPS Only" icon="lock">
+    All requests must use HTTPS to prevent interception.
+  </Card>
+</Columns>
+
+<Callout kind="alert">
+Never commit `YOUR_TOKEN` to version control. Use `.gitignore` for `.env` files.
+</Callout>
+
+## Role-Based Permissions
+
+Manage team access via the dashboard.
+
+| Role | Permissions | Use Case |
+|------|-------------|----------|
+| Admin | All | Full control |
+| Sender | `messages:write` | Send messages |
+| Viewer | `messages:read` | Reports only |
+
+Invite team members and assign roles to enforce least privilege.
